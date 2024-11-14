@@ -14,10 +14,11 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  name      String
-  email     String    @unique
-  password  String
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+  name     String
+
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
@@ -29,12 +30,12 @@ model User {
 }
 
 model Event {
-  id           Int      @id @default(autoincrement())
-  hostId       Int      @map("host_id")
+  id           Int        @id @default(autoincrement())
+  hostId       Int        @map("host_id")
   title        String
-  description  String
-  earliestTime DateTime @map("earliest_time")
-  latestTime   DateTime @map("latest_time")
+  dates        DateTime[]
+  earliestTime Int        @map("earliest_time")
+  latestTime   Int        @map("latest_time")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -48,9 +49,12 @@ model Event {
 }
 
 model EventJoin {
-  id        Int       @id @default(autoincrement())
-  eventId   Int       @map("event_id")
-  userId    Int       @map("user_id")
+  id             Int             @id @default(autoincrement())
+  eventId        Int             @map("event_id")
+  userId         Int             @map("user_id")
+  joinState      JoinState
+  availableTimes AvailableTime[]
+
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
@@ -60,4 +64,22 @@ model EventJoin {
 
   @@unique([eventId, userId])
   @@map("event_join")
+}
+
+enum JoinState {
+  PENDING
+  APPROVED
+  REFUSED
+}
+
+model AvailableTime {
+  id          Int      @id @default(autoincrement())
+  eventJoinId Int      @map("event_join_id")
+  startTime   DateTime @map("start_time")
+  endTime     DateTime @map("end_time")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  EventJoin EventJoin @relation(fields: [eventJoinId], references: [id])
 }

@@ -32,12 +32,12 @@ model User {
 }
 
 model Event {
-  id           Int        @id @default(autoincrement())
-  hostId       Int        @map("host_id")
-  title        String
-  dates        DateTime[]
-  earliestTime Int        @map("earliest_time")
-  latestTime   Int        @map("latest_time")
+  id        Int        @id @default(autoincrement())
+  hostId    Int        @map("host_id")
+  title     String
+  dates     DateTime[]
+  startTime Int        @map("start_time")
+  endTime   Int        @map("end_time")
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -70,7 +70,7 @@ model EventJoin {
 
 enum JoinState {
   PENDING
-  APPROVED
+  JOINED
   REFUSED
 }
 

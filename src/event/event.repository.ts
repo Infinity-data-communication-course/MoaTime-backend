@@ -41,7 +41,7 @@ export class EventRepository {
 
   async getEventById(eventId: number): Promise<EventData | null> {
     return this.prisma.event.findUnique({
-      where: { id: eventId, deletedAt: null },
+      where: { id: eventId },
       select: {
         id: true,
         hostId: true,
@@ -63,7 +63,6 @@ export class EventRepository {
         user: {
           deletedAt: null,
         },
-        deletedAt: null,
       },
       select: {
         id: true,
@@ -94,7 +93,6 @@ export class EventRepository {
           eventId,
           userId,
         },
-        deletedAt: null,
       },
       data: {
         joinState: JoinState.JOINED,
@@ -109,7 +107,6 @@ export class EventRepository {
           eventId,
           userId,
         },
-        deletedAt: null,
       },
       data: {
         joinState: JoinState.REFUSED,
@@ -118,50 +115,33 @@ export class EventRepository {
   }
 
   async exitEvent(eventId: number, userId: number): Promise<void> {
-    await this.prisma.eventJoin.update({
+    await this.prisma.eventJoin.delete({
       where: {
         eventId_userId: {
           eventId,
           userId,
         },
-        deletedAt: null,
-      },
-      data: {
-        deletedAt: new Date(),
       },
     });
   }
 
   async deleteEvent(eventId: number): Promise<void> {
-    await this.prisma.event.update({
+    await this.prisma.event.delete({
       where: {
         id: eventId,
       },
-      data: {
-        deletedAt: new Date(),
+    });
+  }
+
+  async getEvents(userId: number): Promise<EventData[]> {
+    return this.prisma.event.findMany({
+      where: {
         eventJoin: {
-          updateMany: {
-            where: {
-              eventId,
-            },
-            data: {
-              deletedAt: new Date(),
-            },
+          every: {
+            userId,
           },
         },
       },
     });
-
-    const eventJoinIdArray = await this.prisma.eventJoin.findMany({
-      where: { eventId },
-      select: { id: true },
-    });
-
-    eventJoinIdArray.map(
-      async (eventJoinId) =>
-        await this.prisma.availableTime.deleteMany({
-          where: { eventJoinId: eventJoinId.id },
-        }),
-    );
   }
 }

@@ -39,9 +39,8 @@ model Event {
   startTime Int        @map("start_time")
   endTime   Int        @map("end_time")
 
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   host User @relation(fields: [hostId], references: [id])
 
@@ -57,11 +56,10 @@ model EventJoin {
   joinState      JoinState
   availableTimes AvailableTime[]
 
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime  @updatedAt @map("updated_at")
-  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  event Event @relation(fields: [eventId], references: [id])
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
   user  User  @relation(fields: [userId], references: [id])
 
   @@unique([eventId, userId])
@@ -83,7 +81,7 @@ model AvailableTime {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  EventJoin EventJoin @relation(fields: [eventJoinId], references: [id])
+  EventJoin EventJoin @relation(fields: [eventJoinId], references: [id], onDelete: Cascade)
 
   @@map("available_time")
 }

@@ -2,6 +2,7 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -10,6 +11,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   Param,
   ParseIntPipe,
@@ -38,7 +40,7 @@ export class EventController {
     @Body() payload: CreateEventPayload,
     @CurrentUser() user: UserBaseInfo,
   ): Promise<EventDto> {
-    return this.eventService.createEvent(payload, user);
+    return this.eventService.createEvent(payload, user.id);
   }
 
   @Post(':eventId/invite')
@@ -52,7 +54,7 @@ export class EventController {
     @Body() payload: InviteUserPayload,
     @CurrentUser() host: UserBaseInfo,
   ): Promise<void> {
-    return this.eventService.inviteUser(eventId, payload.userId, host);
+    return this.eventService.inviteUser(eventId, payload.userId, host.id);
   }
 
   @Patch(':eventId/join')
@@ -65,7 +67,7 @@ export class EventController {
     @Param('eventId', ParseIntPipe) eventId: number,
     @CurrentUser() user: UserBaseInfo,
   ): Promise<void> {
-    return this.eventService.joinEvent(eventId, user);
+    return this.eventService.joinEvent(eventId, user.id);
   }
 
   @Patch(':eventId/refuse')
@@ -78,7 +80,7 @@ export class EventController {
     @Param('eventId', ParseIntPipe) eventId: number,
     @CurrentUser() user: UserBaseInfo,
   ): Promise<void> {
-    return this.eventService.refuseEvent(eventId, user);
+    return this.eventService.refuseEvent(eventId, user.id);
   }
 
   @Delete(':eventId/exit')
@@ -91,7 +93,7 @@ export class EventController {
     @Param('eventId', ParseIntPipe) eventId: number,
     @CurrentUser() user: UserBaseInfo,
   ): Promise<void> {
-    return this.eventService.exitEvent(eventId, user);
+    return this.eventService.exitEvent(eventId, user.id);
   }
 
   @Delete(':eventId/delete')
@@ -104,6 +106,15 @@ export class EventController {
     @Param('eventId', ParseIntPipe) eventId: number,
     @CurrentUser() host: UserBaseInfo,
   ): Promise<void> {
-    return this.eventService.deleteEvent(eventId, host);
+    return this.eventService.deleteEvent(eventId, host.id);
+  }
+
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'user의 이벤트 목록을 가져옵니다.' })
+  @ApiOkResponse({ type: [EventDto] })
+  async getEvents(@CurrentUser() user: UserBaseInfo): Promise<EventDto[]> {
+    return this.eventService.getEvents(user.id);
   }
 }

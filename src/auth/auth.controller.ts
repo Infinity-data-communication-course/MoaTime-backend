@@ -9,7 +9,7 @@ import {
 import { SignUpPayload } from './payload/sign-up.payload';
 import { LoginPayload } from './payload/login.payload';
 import { Request, Response } from 'express';
-import { TokenDto } from './dto/toke.dto';
+import { TokenDto } from './dto/token.dto';
 
 @Controller('auth')
 @ApiTags('Auth API')

@@ -6,9 +6,10 @@ import { AppService } from './app.service';
 import { LoggerMiddleware } from '../common/middlewares/logger.middleware';
 import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
+import { EventModule } from 'src/event/event.module';
 
 @Module({
-  imports: [configModule, CommonModule, UserModule, AuthModule],
+  imports: [configModule, CommonModule, UserModule, AuthModule, EventModule],
   controllers: [AppController],
   providers: [AppService],
 })

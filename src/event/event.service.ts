@@ -2,14 +2,16 @@ import { EventRepository } from './event.repository';
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { EventDto } from './dto/event.dto';
 import { CreateEventData } from './type/create-event-data.type';
 import { JoinState } from '@prisma/client';
 import { CreateEventPayload } from './payload/create-event.payload';
+import { EventMyListDto } from './dto/event-my-dto';
+import { EventDetailDto } from './dto/event-detail-dto';
 
 @Injectable()
 export class EventService {
@@ -61,9 +63,7 @@ export class EventService {
     }
 
     if (event.hostId !== hostId) {
-      throw new UnauthorizedException(
-        '해당 이벤트의 host만 초대할 수 있습니다.',
-      );
+      throw new ForbiddenException('해당 이벤트의 host만 초대할 수 있습니다.');
     }
 
     const eventJoin = await this.eventRepository.getEventJoin(eventId, userId);
@@ -137,13 +137,30 @@ export class EventService {
     }
 
     if (event.hostId !== hostId) {
-      throw new UnauthorizedException('host만 이벤트를 삭제할 수 있습니다.');
+      throw new ForbiddenException('host만 이벤트를 삭제할 수 있습니다.');
     }
 
     await this.eventRepository.deleteEvent(eventId);
   }
 
-  async getEvents(userId: number): Promise<EventDto[]> {
-    return await this.eventRepository.getEvents(userId);
+  async getMyEvents(userId: number): Promise<EventMyListDto> {
+    const events = await this.eventRepository.getMyEvents(userId);
+    return EventMyListDto.from(events);
+  }
+
+  async getEventDetail(
+    eventId: number,
+    userId: number,
+  ): Promise<EventDetailDto> {
+    const eventJoin = await this.eventRepository.getEventJoin(eventId, userId);
+    if (!eventJoin) {
+      throw new ForbiddenException(
+        '참여중인 user만 이벤트를 상세 조회할 수 있습니다.',
+      );
+    }
+
+    const eventDetail = await this.eventRepository.getEventDetail(eventId);
+
+    return EventDetailDto.from(eventDetail);
   }
 }

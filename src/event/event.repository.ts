@@ -5,6 +5,8 @@ import { User } from '@prisma/client';
 import { EventData } from './type/event-data.type';
 import { JoinState } from '@prisma/client';
 import { EventJoinData } from './type/event-join-data.type';
+import { EventMyData } from './type/event-my-data.type';
+import { EventDetailData } from './type/event-detail-data.type';
 
 @Injectable()
 export class EventRepository {
@@ -18,6 +20,9 @@ export class EventRepository {
         dates: data.dates,
         startTime: data.startTime,
         endTime: data.endTime,
+        eventJoin: {
+          create: { userId: data.hostId, joinState: JoinState.JOINED },
+        },
       },
       select: {
         id: true,
@@ -133,12 +138,68 @@ export class EventRepository {
     });
   }
 
-  async getEvents(userId: number): Promise<EventData[]> {
+  async getMyEvents(userId: number): Promise<EventMyData[]> {
     return this.prisma.event.findMany({
       where: {
         eventJoin: {
           every: {
             userId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        hostId: true,
+        title: true,
+        dates: true,
+        startTime: true,
+        endTime: true,
+        host: {
+          select: {
+            name: true,
+          },
+        },
+        eventJoin: {
+          where: {
+            userId,
+          },
+          select: { joinState: true },
+        },
+      },
+    });
+  }
+
+  async getEventDetail(eventId: number): Promise<EventDetailData> {
+    return this.prisma.event.findUnique({
+      where: {
+        id: eventId,
+      },
+      select: {
+        id: true,
+        hostId: true,
+        title: true,
+        dates: true,
+        startTime: true,
+        endTime: true,
+        host: { select: { name: true } },
+        eventJoin: {
+          where: {
+            joinState: JoinState.JOINED,
+          },
+          distinct: ['userId'],
+          select: {
+            userId: true,
+            user: {
+              select: {
+                name: true,
+              },
+            },
+            availableTimes: {
+              select: {
+                startTime: true,
+                endTime: true,
+              },
+            },
           },
         },
       },

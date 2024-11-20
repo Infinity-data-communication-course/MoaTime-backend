@@ -25,6 +25,8 @@ import { UserBaseInfo } from 'src/auth/type/user-base-info.type';
 import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { InviteUserPayload } from './payload/invite-user-to-event.payload';
 import { CreateEventPayload } from './payload/create-event.payload';
+import { EventMyListDto } from './dto/event-my-dto';
+import { EventDetailDto } from './dto/event-detail-dto';
 
 @Controller('event')
 @ApiTags('Event API')
@@ -109,12 +111,30 @@ export class EventController {
     return this.eventService.deleteEvent(eventId, host.id);
   }
 
-  @Get()
+  @Get('my')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'user의 이벤트 목록을 가져옵니다.' })
-  @ApiOkResponse({ type: [EventDto] })
-  async getEvents(@CurrentUser() user: UserBaseInfo): Promise<EventDto[]> {
-    return this.eventService.getEvents(user.id);
+  @ApiOperation({
+    summary: 'user의 이벤트 목록을 가져옵니다.',
+  })
+  @ApiOkResponse({ type: EventMyListDto })
+  async getMyEvents(
+    @CurrentUser() user: UserBaseInfo,
+  ): Promise<EventMyListDto> {
+    return this.eventService.getMyEvents(user.id);
+  }
+
+  @Get(':eventId/detail')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: '이벤트의 상세데이터를 가져옵니다.',
+  })
+  @ApiOkResponse({ type: EventDetailDto })
+  async getEventDetail(
+    @Param('eventId', ParseIntPipe) eventId: number,
+    @CurrentUser() user: UserBaseInfo,
+  ): Promise<EventDetailDto> {
+    return this.eventService.getEventDetail(eventId, user.id);
   }
 }

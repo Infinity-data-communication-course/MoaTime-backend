@@ -19,15 +19,18 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.enableCors();
+  app.enableCors({
+    origin: ['http://localhost:3001'],
+    credentials: true,
+  });
   app.use(cookieParser());
 
   // swagger 세팅
   const config = new DocumentBuilder()
-    .setTitle('Eventory Server')
-    .setDescription('Eventory API description')
+    .setTitle('MoaTime Server')
+    .setDescription('MoaTime API description')
     .setVersion('1.0')
-    .addTag('Eventory')
+    .addTag('MoaTime')
     .addBearerAuth()
     .build();
 

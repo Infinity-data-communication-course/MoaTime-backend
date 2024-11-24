@@ -72,7 +72,7 @@ export class AuthController {
     // refresh Token은 쿠키로
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
-      // secure: true,
+      secure: true,
       sameSite: 'none',
       // 이후 실제 도메인으로 변경
       domain: 'localhost',

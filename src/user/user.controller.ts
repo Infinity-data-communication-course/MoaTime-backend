@@ -12,6 +12,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -20,6 +21,7 @@ import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { UserBaseInfo } from 'src/auth/type/user-base-info.type';
 import { CheckEmailExistPayload } from './payload/check-email-exist.payload';
 import { UserDto } from './dto/user.dto';
+import { UpdateUserPayload } from './payload/update-user.payload';
 
 @Controller('user')
 @ApiTags('User API')
@@ -52,5 +54,18 @@ export class UserController {
   @ApiOkResponse({ type: UserDto })
   async getUser(@CurrentUser() user: UserBaseInfo): Promise<UserDto> {
     return this.userService.getUser(user.id);
+  }
+
+  @Patch()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '유저 정보 수정' })
+  @HttpCode(204)
+  @ApiNoContentResponse()
+  async updateUser(
+    @Body() payload: UpdateUserPayload,
+    @CurrentUser() user: UserBaseInfo,
+  ): Promise<void> {
+    return this.userService.updateUser(payload, user.id);
   }
 }

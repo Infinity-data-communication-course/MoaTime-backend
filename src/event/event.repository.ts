@@ -44,6 +44,15 @@ export class EventRepository {
     });
   }
 
+  async getUserByEmail(email: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: {
+        email,
+        deletedAt: null,
+      },
+    });
+  }
+
   async getEventById(eventId: number): Promise<EventData | null> {
     return this.prisma.event.findUnique({
       where: { id: eventId },
@@ -142,7 +151,7 @@ export class EventRepository {
     return this.prisma.event.findMany({
       where: {
         eventJoin: {
-          every: {
+          some: {
             userId,
           },
         },

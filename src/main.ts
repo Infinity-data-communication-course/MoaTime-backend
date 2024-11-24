@@ -20,7 +20,11 @@ async function bootstrap() {
 
   app.useGlobalFilters(new HttpExceptionFilter());
   app.enableCors({
-    origin: ['http://localhost:3001'],
+    origin: [
+      'http://localhost:3001',
+      'https://moatime-client.vercel.app',
+      'https://moatime.vercel.app',
+    ],
     credentials: true,
   });
   app.use(cookieParser());

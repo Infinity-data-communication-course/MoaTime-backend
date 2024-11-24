@@ -56,7 +56,7 @@ export class EventController {
     @Body() payload: InviteUserPayload,
     @CurrentUser() host: UserBaseInfo,
   ): Promise<void> {
-    return this.eventService.inviteUser(eventId, payload.userId, host.id);
+    return this.eventService.inviteUser(eventId, payload.email, host.id);
   }
 
   @Patch(':eventId/join')

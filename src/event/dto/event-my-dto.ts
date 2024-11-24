@@ -60,7 +60,7 @@ export class EventMyDto {
       startTime: event.startTime,
       endTime: event.endTime,
       hostName: event.host.name,
-      joinState: event.eventJoin[0].joinState,
+      joinState: event.eventJoin[0]?.joinState,
     };
   }
 

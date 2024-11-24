@@ -1,4 +1,5 @@
 import { UserDto } from './dto/user.dto';
+import { UpdateUserPayload } from './payload/update-user.payload';
 import { UserRepository } from './user.repository';
 import { Injectable, NotFoundException } from '@nestjs/common';
 
@@ -26,5 +27,9 @@ export class UserService {
     const user = await this.userRepository.getUserById(userId);
 
     return UserDto.from(user);
+  }
+
+  async updateUser(payload: UpdateUserPayload, userId: number): Promise<void> {
+    return this.userRepository.updateUser(payload, userId);
   }
 }

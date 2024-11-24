@@ -15,12 +15,6 @@ export class UserDto {
   email!: string;
 
   @ApiProperty({
-    description: '유저 비밀번호',
-    type: String,
-  })
-  password!: string;
-
-  @ApiProperty({
     description: '유저 이름',
     type: String,
   })
@@ -30,7 +24,6 @@ export class UserDto {
     return {
       id: user.id,
       email: user.email,
-      password: user.password,
       name: user.name,
     };
   }

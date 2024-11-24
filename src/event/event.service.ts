@@ -48,10 +48,10 @@ export class EventService {
 
   async inviteUser(
     eventId: number,
-    userId: number,
+    email: string,
     hostId: number,
   ): Promise<void> {
-    const userPromise = this.eventRepository.getUserById(userId);
+    const userPromise = this.eventRepository.getUserByEmail(email);
     const eventPromise = this.eventRepository.getEventById(eventId);
     const [user, event] = await Promise.all([userPromise, eventPromise]);
 
@@ -66,12 +66,12 @@ export class EventService {
       throw new ForbiddenException('해당 이벤트의 host만 초대할 수 있습니다.');
     }
 
-    const eventJoin = await this.eventRepository.getEventJoin(eventId, userId);
+    const eventJoin = await this.eventRepository.getEventJoin(eventId, user.id);
     if (eventJoin) {
       throw new ConflictException('이미 초대한 user입니다.');
     }
 
-    await this.eventRepository.inviteUser(eventId, userId);
+    await this.eventRepository.inviteUser(eventId, user.id);
   }
 
   async joinEvent(eventId: number, userId: number): Promise<void> {
@@ -152,8 +152,13 @@ export class EventService {
     eventId: number,
     userId: number,
   ): Promise<EventDetailDto> {
+    const event = await this.eventRepository.getEventById(eventId);
+    if (!event) {
+      throw new NotFoundException('이벤트를 찾을 수 없습니다.');
+    }
+
     const eventJoin = await this.eventRepository.getEventJoin(eventId, userId);
-    if (!eventJoin) {
+    if (eventJoin.joinState !== 'JOINED') {
       throw new ForbiddenException(
         '참여중인 user만 이벤트를 상세 조회할 수 있습니다.',
       );

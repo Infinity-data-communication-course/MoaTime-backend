@@ -29,7 +29,7 @@ export class AuthController {
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       // 이후 실제 도메인으로 변경
       domain: 'localhost',
     });
@@ -51,7 +51,7 @@ export class AuthController {
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       // 이후 실제 도메인으로 변경
       domain: 'localhost',
     });
@@ -73,7 +73,7 @@ export class AuthController {
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
       // secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
       // 이후 실제 도메인으로 변경
       domain: 'localhost',
     });

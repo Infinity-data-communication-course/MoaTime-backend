@@ -30,8 +30,6 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      // 이후 실제 도메인으로 변경
-      domain: 'localhost',
     });
 
     return TokenDto.from(tokens.accessToken);
@@ -52,8 +50,6 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      // 이후 실제 도메인으로 변경
-      domain: 'localhost',
     });
 
     return TokenDto.from(tokens.accessToken);
@@ -74,8 +70,6 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      // 이후 실제 도메인으로 변경
-      domain: 'localhost',
     });
 
     return TokenDto.from(tokens.accessToken);

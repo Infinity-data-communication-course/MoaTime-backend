@@ -27,6 +27,7 @@ import { InviteUserPayload } from './payload/invite-user-to-event.payload';
 import { CreateEventPayload } from './payload/create-event.payload';
 import { EventMyListDto } from './dto/event-my-dto';
 import { EventDetailDto } from './dto/event-detail-dto';
+import { CreateAvailableTimePayload } from './payload/create-available-time.payload';
 
 @Controller('event')
 @ApiTags('Event API')
@@ -136,5 +137,18 @@ export class EventController {
     @CurrentUser() user: UserBaseInfo,
   ): Promise<EventDetailDto> {
     return this.eventService.getEventDetail(eventId, user.id);
+  }
+
+  @Post(':eventId/available-time')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: '가능 시간을 업데이트합니다.' })
+  @ApiCreatedResponse()
+  async createAvailableTime(
+    @Param('eventId', ParseIntPipe) eventId: number,
+    @Body() payload: CreateAvailableTimePayload,
+    @CurrentUser() user: UserBaseInfo,
+  ): Promise<void> {
+    return this.eventService.createAvailableTime(eventId, payload, user.id);
   }
 }

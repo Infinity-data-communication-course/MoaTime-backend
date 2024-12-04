@@ -12,6 +12,7 @@ import { JoinState } from '@prisma/client';
 import { CreateEventPayload } from './payload/create-event.payload';
 import { EventMyListDto } from './dto/event-my-dto';
 import { EventDetailDto } from './dto/event-detail-dto';
+import { CreateAvailableTimePayload } from './payload/create-available-time.payload';
 
 @Injectable()
 export class EventService {
@@ -167,5 +168,77 @@ export class EventService {
     const eventDetail = await this.eventRepository.getEventDetail(eventId);
 
     return EventDetailDto.from(eventDetail);
+  }
+
+  async createAvailableTime(
+    eventId: number,
+    payload: CreateAvailableTimePayload,
+    userId: number,
+  ): Promise<void> {
+    const eventJoin = await this.eventRepository.getEventJoin(eventId, userId);
+
+    if (eventJoin.joinState !== JoinState.JOINED) {
+      throw new NotFoundException('참여중이지 않은 event입니다.');
+    }
+
+    const event = await this.eventRepository.getEventById(eventId);
+
+    const eventDates = event.dates.map(
+      (date) => `${date.getFullYear()}${date.getMonth()}${date.getDate()}`,
+    );
+    const availableDates = payload.availableTimes.map(
+      (time) =>
+        `${time.date.getFullYear()}${time.date.getMonth()}${time.date.getDate()}`,
+    );
+    availableDates.map((date) => {
+      if (!eventDates.includes(date)) {
+        console.log('eventDates', eventDates);
+        console.log('availableDates', availableDates);
+        throw new ConflictException(
+          '가능시간의 날짜가 이벤트의 날짜와 맞지 않습니다.',
+        );
+      }
+    });
+
+    function areRangesOverlapping(ranges): boolean {
+      ranges.sort((a, b) => a.startTime - b.startTime);
+
+      for (let i = 0; i < ranges.length - 1; i++) {
+        if (ranges[i].endTime > ranges[i + 1].startTime) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    const overlapExist = areRangesOverlapping(payload.availableTimes);
+    if (overlapExist) {
+      throw new ConflictException('가능시간들의 범위가 겹치지 않아야 합니다.');
+    }
+
+    payload.availableTimes.map((time) => {
+      if (time.startTime >= time.endTime) {
+        throw new ConflictException(
+          '가능시간의 시작시간은 종료시간보다 늦어야 합니다.',
+        );
+      }
+      if (time.startTime < event.startTime || event.endTime < time.endTime) {
+        throw new ConflictException(
+          '가능시간은 이벤트의 시작시간과 종료시간 사이로 설정해야 합니다.',
+        );
+      }
+    });
+
+    const createData = payload.availableTimes.map((time) => {
+      return {
+        eventJoinId: eventJoin.id,
+        date: time.date,
+        startTime: time.startTime,
+        endTime: time.endTime,
+      };
+    });
+
+    await this.eventRepository.createAvailableTime(eventJoin.id, createData);
   }
 }

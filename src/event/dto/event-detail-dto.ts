@@ -3,6 +3,12 @@ import { EventDetailData } from '../type/event-detail-data.type';
 
 export class AvailableTimeDto {
   @ApiProperty({
+    description: '가능한 날짜',
+    type: Date,
+  })
+  date!: Date;
+
+  @ApiProperty({
     description: '시작 시간',
     type: Number,
   })

@@ -7,6 +7,7 @@ import { JoinState } from '@prisma/client';
 import { EventJoinData } from './type/event-join-data.type';
 import { EventMyData } from './type/event-my-data.type';
 import { EventDetailData } from './type/event-detail-data.type';
+import { CreateAvailableTimeData } from './type/create-available-time-data.type';
 
 @Injectable()
 export class EventRepository {
@@ -67,8 +68,11 @@ export class EventRepository {
     });
   }
 
-  async getEventJoin(eventId: number, userId: number): Promise<EventJoinData> {
-    const eventJoin = await this.prisma.eventJoin.findUnique({
+  async getEventJoin(
+    eventId: number,
+    userId: number,
+  ): Promise<EventJoinData | null> {
+    return this.prisma.eventJoin.findUnique({
       where: {
         eventId_userId: {
           eventId,
@@ -86,8 +90,6 @@ export class EventRepository {
         availableTimes: true,
       },
     });
-
-    return eventJoin;
   }
 
   async inviteUser(eventId: number, userId: number): Promise<void> {
@@ -205,6 +207,7 @@ export class EventRepository {
             },
             availableTimes: {
               select: {
+                date: true,
                 startTime: true,
                 endTime: true,
               },
@@ -212,6 +215,23 @@ export class EventRepository {
           },
         },
       },
+    });
+  }
+
+  async createAvailableTime(
+    eventJoinId: number,
+    data: CreateAvailableTimeData[],
+  ): Promise<void> {
+    await this.prisma.$transaction(async (prisma) => {
+      await prisma.availableTime.deleteMany({
+        where: {
+          eventJoinId,
+        },
+      });
+
+      await prisma.availableTime.createMany({
+        data,
+      });
     });
   }
 }

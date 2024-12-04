@@ -4,15 +4,15 @@ import { EventDetailData } from '../type/event-detail-data.type';
 export class AvailableTimeDto {
   @ApiProperty({
     description: '시작 시간',
-    type: Date,
+    type: Number,
   })
-  startTime!: Date;
+  startTime!: number;
 
   @ApiProperty({
     description: '끝 시간',
-    type: Date,
+    type: Number,
   })
-  endTime!: Date;
+  endTime!: number;
 }
 
 export class EventJoinDto {

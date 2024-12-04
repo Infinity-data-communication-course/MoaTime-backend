@@ -14,8 +14,9 @@ export type EventDetailData = {
     };
     userId: number;
     availableTimes: {
-      startTime: Date;
-      endTime: Date;
+      date: Date;
+      startTime: number;
+      endTime: number;
     }[];
   }[];
 };

@@ -200,19 +200,51 @@ export class EventService {
       }
     });
 
-    function areRangesOverlapping(ranges): boolean {
-      ranges.sort((a, b) => a.startTime - b.startTime);
+    // function areRangesOverlapping(ranges): boolean {
+    //   ranges.sort((a, b) => a.startTime - b.startTime);
 
-      for (let i = 0; i < ranges.length - 1; i++) {
-        if (ranges[i].endTime > ranges[i + 1].startTime) {
-          return true;
+    //   for (let i = 0; i < ranges.length - 1; i++) {
+    //     if (ranges[i].endTime > ranges[i + 1].startTime) {
+    //       return true;
+    //     }
+    //   }
+
+    //   return false;
+    // }
+    function areRangesOverlappingByDate(ranges: { date: string; startTime: number; endTime: number }[]): boolean {
+      // 날짜별로 그룹화
+      const groupedByDate: { [key: string]: { startTime: number; endTime: number }[] } = {};
+      ranges.forEach((range) => {
+        if (!groupedByDate[range.date]) {
+          groupedByDate[range.date] = [];
+        }
+        groupedByDate[range.date].push({ startTime: range.startTime, endTime: range.endTime });
+      });
+    
+      // 각 날짜의 시간 범위에 대해 중복 검사
+      for (const date in groupedByDate) {
+        const timeRanges = groupedByDate[date];
+        timeRanges.sort((a, b) => a.startTime - b.startTime); // 시작 시간을 기준으로 정렬
+    
+        for (let i = 0; i < timeRanges.length - 1; i++) {
+          if (timeRanges[i].endTime > timeRanges[i + 1].startTime) {
+            return true; // 겹치는 시간 범위가 존재
+          }
         }
       }
-
-      return false;
+    
+      return false; // 겹치는 시간 범위가 없음
     }
+    
 
-    const overlapExist = areRangesOverlapping(payload.availableTimes);
+    //const overlapExist = areRangesOverlapping(payload.availableTimes);
+    const overlapExist = areRangesOverlappingByDate(
+      payload.availableTimes.map((time) => ({
+        date: time.date.toISOString(), // Date 객체를 ISO 문자열로 변환
+        startTime: time.startTime,
+        endTime: time.endTime,
+      }))
+    );
     if (overlapExist) {
       throw new ConflictException('가능시간들의 범위가 겹치지 않아야 합니다.');
     }

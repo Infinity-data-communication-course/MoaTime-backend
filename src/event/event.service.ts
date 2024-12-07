@@ -184,16 +184,14 @@ export class EventService {
     const event = await this.eventRepository.getEventById(eventId);
 
     const eventDates = event.dates.map(
-      (date) => `${date.getFullYear()}${date.getMonth()}${date.getDate()}`,
+      (date) => `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
     );
     const availableDates = payload.availableTimes.map(
       (time) =>
-        `${time.date.getFullYear()}${time.date.getMonth()}${time.date.getDate()}`,
+        `${time.date.getFullYear()}-${time.date.getMonth()}-${time.date.getDate()}`,
     );
     availableDates.map((date) => {
       if (!eventDates.includes(date)) {
-        console.log('eventDates', eventDates);
-        console.log('availableDates', availableDates);
         throw new ConflictException(
           '가능시간의 날짜가 이벤트의 날짜와 맞지 않습니다.',
         );
